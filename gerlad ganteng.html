@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Gerlad Ganteng - Perpustakaan SPA</title>
+  <style>
+    /* --- Base (merged from style.css) --- */
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:Arial,sans-serif;background:linear-gradient(135deg,#6dd5ed,#2193b0);color:#333;min-height:100vh;display:flex;flex-direction:column;animation:fadeIn 1s ease-in-out}
+    header{background:#004e92;color:white;text-align:center;padding:1rem;animation:slideDown 1s ease}
+    header nav{margin-top:10px}
+    header nav a{color:white;margin:0 10px;text-decoration:none;font-weight:bold;transition:color .3s}
+    header nav a:hover{color:#ffdd57}
+    main{flex:1;padding:20px}
+    .hero{background:rgba(255,255,255,0.9);padding:30px;border-radius:12px;margin-bottom:30px;animation:popUp .8s ease;text-align:center}
+    .ringkasan{display:flex;justify-content:space-around;flex-wrap:wrap}
+    .ringkasan .card{background:white;padding:20px;margin:10px;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,.2);width:150px;text-align:center;animation:fadeInUp 1s ease}
+    .form-section{background:white;padding:15px;border-radius:12px;box-shadow:0 4px 10px rgba(0,0,0,.2);margin-bottom:20px;animation:popUp .8s ease}
+    form input,form select{padding:10px;margin:5px;border:1px solid #ccc;border-radius:8px}
+    form button{padding:10px 15px;border:none;background:#2193b0;color:white;border-radius:8px;cursor:pointer;transition:transform .2s}
+    form button:hover{background:#17617d;transform:scale(1.05)}
+    table{width:100%;border-collapse:collapse}
+    table th,table td{border:1px solid #ddd;padding:10px;text-align:center}
+    table th{background:#2193b0;color:white}
+    .action-btn{padding:6px 10px;margin:2px;border:none;border-radius:6px;cursor:pointer;transition:.3s}
+    .edit{background:#ffc107}
+    .delete{background:#e74c3c;color:white}
+    .action-btn:hover{transform:scale(1.1)}
+    footer{text-align:center;padding:10px;background:#004e92;color:white}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes slideDown{from{transform:translateY(-50px);opacity:0}to{transform:translateY(0);opacity:1}}@keyframes popUp{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}@keyframes fadeInUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+    /* --- Dashboard specific (merged) --- */
+    .dashboard-container{max-width:980px;margin:32px auto;padding:28px;background:#fff;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.08);animation:fadeInUp .6s ease}
+    .dashboard-header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:18px}
+    .dashboard-title{font-size:1.8rem;color:#123;margin:0;letter-spacing:1px}
+    .small{color:#666;font-size:.95rem}
+    .grid{display:grid;grid-template-columns:360px 1fr;gap:20px}
+    .card{background:linear-gradient(180deg,#fbfdff,#f7fbff);border-radius:10px;padding:16px;box-shadow:0 6px 18px rgba(16,24,40,.04)}
+    form label{display:block;font-weight:600;margin-top:8px}
+    form input,form select{width:100%;padding:10px 12px;margin-top:6px;border-radius:8px;border:1px solid #d6e3f0;font-size:.95rem}
+    form button{margin-top:12px;background:#0066cc;color:#fff;border:none;padding:10px 14px;border-radius:8px;cursor:pointer}
+    .actions button{margin-right:8px;padding:6px 10px;border-radius:6px;border:none;cursor:pointer}
+    .btn-edit{background:#ffb74d;color:#fff}.btn-delete{background:#ef5350;color:#fff}.btn-toggle{background:#26a69a;color:#fff}
+    .status-tersedia{color:#14833b;font-weight:700}.status-dipinjam{color:#c62828;font-weight:700}
+    .modal{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);opacity:0;pointer-events:none;transition:opacity .18s ease}
+    .modal.open{opacity:1;pointer-events:auto}.modal-card{width:420px;background:#fff;border-radius:10px;padding:18px;box-shadow:0 20px 40px rgba(2,6,23,.2);transform:translateY(12px);animation:popUp .25s ease}
+    @media(max-width:860px){.grid{grid-template-columns:1fr}.dashboard-container{margin:12px}}
+    @keyframes rowIn{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:none}}.row-new{animation:rowIn .38s ease}
+
+    /* small helpers */
+    .hidden{display:none}
+    .tabs{display:flex;gap:8px;margin-bottom:12px}
+    .tab{padding:8px 12px;background:#e9f3fb;border-radius:8px;cursor:pointer}
+    .tab.active{background:#0066cc;color:#fff}
+    .list-group{list-style:none;padding:8px}
+    .list-group li{margin-bottom:8px}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Perpustakaan Digital — Gerlad Ganteng</h1>
+    <nav>
+      <a href="#home" data-link>Beranda</a>
+      <a href="#koleksi" data-link>Koleksi</a>
+      <a href="#tersedia" data-link>Tersedia</a>
+      <a href="#dipinjam" data-link>Dipinjam</a>
+      <a href="#tambah" data-link>Tambah Buku</a>
+      <a href="#dashboard" data-link>Dashboard</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- HOME -->
+    <section id="view-home" class="view">
+      <section class="hero">
+        <h2>Selamat Datang, Pustakawan!</h2>
+        <p>Kelola koleksi buku dan data peminjaman di sini.</p>
+      </section>
+      <section class="ringkasan">
+        <div class="card">
+          <h3>Total Buku</h3>
+          <p id="totalBuku">0</p>
+        </div>
+        <div class="card">
+          <h3>Buku Dipinjam</h3>
+          <p id="dipinjam">0</p>
+        </div>
+        <div class="card">
+          <h3>Buku Tersedia</h3>
+          <p id="tersedia">0</p>
+        </div>
+      </section>
+    </section>
+
+    <!-- KOLEKSI (semua buku) -->
+    <section id="view-koleksi" class="view hidden">
+      <div class="dashboard-container">
+        <h2 class="dashboard-title">Koleksi Buku</h2>
+        <div class="card" style="overflow:auto;max-height:520px">
+          <table>
+            <thead><tr><th>Judul</th><th>Pengarang</th><th>Peminjam</th><th>Status</th><th>Aksi</th></tr></thead>
+            <tbody id="allTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TERSEDIA -->
+    <section id="view-tersedia" class="view hidden">
+      <div class="dashboard-container">
+        <h2 class="dashboard-title">Buku Tersedia</h2>
+        <div class="card"><ul id="availableList" class="list-group"></ul></div>
+      </div>
+    </section>
+
+    <!-- DIPINJAM -->
+    <section id="view-dipinjam" class="view hidden">
+      <div class="dashboard-container">
+        <h2 class="dashboard-title">Buku Dipinjam</h2>
+        <div class="card"><ul id="borrowedList" class="list-group"></ul></div>
+      </div>
+    </section>
+
+    <!-- TAMBAH -->
+    <section id="view-tambah" class="view hidden">
+      <div class="dashboard-container">
+        <div class="grid">
+          <div class="card">
+            <h3>Tambah / Simpan Buku</h3>
+            <form id="bookForm">
+              <input type="hidden" id="bookId">
+              <label for="title">Judul Buku</label>
+              <input id="title" required placeholder="Masukkan judul...">
+              <label for="author">Pengarang</label>
+              <input id="author" placeholder="Nama pengarang...">
+              <label for="borrower">Nama Peminjam (kosong jika tersedia)</label>
+              <input id="borrower" placeholder="Jika dipinjam, masukkan nama">
+              <label for="status">Status</label>
+              <select id="status"><option value="tersedia">Tersedia</option><option value="dipinjam">Dipinjam</option></select>
+              <button type="submit">Simpan</button>
+            </form>
+          </div>
+          <div class="card">
+            <h3>Petunjuk</h3>
+            <p>Gunakan form untuk menambah buku atau menyimpan perubahan.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DASHBOARD ADMIN -->
+    <section id="view-dashboard" class="view hidden">
+      <div class="dashboard-container">
+        <div class="dashboard-header">
+          <div>
+            <h2 class="dashboard-title">Dashboard Admin - Peminjaman</h2>
+            <div class="small">Kelola data buku, peminjaman, sunting dan hapus.</div>
+          </div>
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h3>Tambah / Simpan Buku</h3>
+            <!-- re-use the same form in Tambah view -->
+            <form id="dashBookForm">
+              <input type="hidden" id="dashBookId">
+              <label>Judul</label><input id="dashTitle" required>
+              <label>Pengarang</label><input id="dashAuthor">
+              <label>Nama Peminjam</label><input id="dashBorrower">
+              <label>Status</label><select id="dashStatus"><option value="tersedia">Tersedia</option><option value="dipinjam">Dipinjam</option></select>
+              <button type="submit">Simpan</button>
+            </form>
+          </div>
+          <div class="card">
+            <h3>Daftar Buku</h3>
+            <div style="overflow:auto;max-height:520px"><table><thead><tr><th>Judul</th><th>Pengarang</th><th>Peminjam</th><th>Status</th><th>Aksi</th></tr></thead><tbody id="bookTableBody"></tbody></table></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="editModal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <h4>Sunting Buku</h4>
+      <form id="editForm">
+        <input type="hidden" id="editId">
+        <label>Judul</label><input id="editTitle" required>
+        <label>Pengarang</label><input id="editAuthor">
+        <label>Nama Peminjam</label><input id="editBorrower">
+        <label>Status</label><select id="editStatus"><option value="tersedia">Tersedia</option><option value="dipinjam">Dipinjam</option></select>
+        <div style="margin-top:12px;text-align:right"><button type="button" id="cancelEdit" style="margin-right:8px;background:#ddd;color:#111;padding:8px 10px;border-radius:6px;border:none;">Batal</button><button type="submit" style="background:#1976d2;color:#fff;padding:8px 12px;border-radius:6px;border:none;">Simpan</button></div>
+      </form>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2025 Perpustakaan Digital</p>
+  </footer>
+
+  <script>
+    // Single-file app script (combines existing logic)
+    (()=>{
+      const STORAGE_KEY = 'books_v1';
+      const $ = (s, el=document) => el.querySelector(s);
+      const $$ = (s, el=document) => Array.from(el.querySelectorAll(s));
+
+      function loadBooks(){ try{ return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }catch(e){ return []; } }
+      function saveBooks(list){ localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }
+      function escapeHtml(s){ if(!s && s!==0) return ''; return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+      // seed if empty
+      (function seed(){ if(!localStorage.getItem(STORAGE_KEY)){ const seed = [ { id:'b1',title:'Laskar Pelangi',author:'Andrea Hirata',borrower:'',status:'tersedia' },{ id:'b2',title:'Bumi Manusia',author:'Pramoedya Ananta Toer',borrower:'',status:'tersedia' },{ id:'b3',title:'Negeri 5 Menara',author:'A. Fuadi',borrower:'',status:'tersedia' },{ id:'b4',title:'Dilan 1990',author:'Pidi Baiq',borrower:'',status:'tersedia' },{ id:'b5',title:'Ayat-Ayat Cinta',author:'Habiburrahman El Shirazy',borrower:'',status:'tersedia' } ]; localStorage.setItem(STORAGE_KEY,JSON.stringify(seed)); }})();
+
+      // views
+      const views = { home:$('#view-home'), koleksi:$('#view-koleksi'), tersedia:$('#view-tersedia'), dipinjam:$('#view-dipinjam'), tambah:$('#view-tambah'), dashboard:$('#view-dashboard') };
+      function showView(name){ Object.values(views).forEach(v=>v.classList.add('hidden')); const key = name === 'koleksi' ? 'koleksi' : name; if(views[key]) views[key].classList.remove('hidden'); renderAll(); }
+
+      // navigation
+      document.querySelectorAll('[data-link]').forEach(a=>a.addEventListener('click', e=>{ e.preventDefault(); const hash = a.getAttribute('href').replace('#',''); showView(hash); history.pushState(null,'', '#'+hash); }));
+      // handle back/forward
+      window.addEventListener('popstate', ()=>{ const h = location.hash.replace('#','')||'home'; showView(h); });
+
+      // render helpers
+      function renderCounts(){ const all = loadBooks(); $('#totalBuku').textContent = all.length; $('#dipinjam').textContent = all.filter(b=>b.status==='dipinjam').length; $('#tersedia').textContent = all.filter(b=>b.status==='tersedia').length; }
+
+      function renderList(status, rootId){ const root = document.getElementById(rootId); root.innerHTML=''; const books = loadBooks().filter(b=>b.status===status); if(!books.length){ root.innerHTML='<li style="padding:12px;color:#666">Tidak ada buku pada kategori ini.</li>'; return; } books.forEach(b=>{ const li = document.createElement('li'); li.className='book-item'; li.innerHTML = `<strong>${escapeHtml(b.title)}</strong><div style="font-size:.9rem;color:#555">${escapeHtml(b.author||'')} ${b.borrower?(' — Peminjam: '+escapeHtml(b.borrower)) : ''}</div>`; root.appendChild(li); }); }
+
+      function renderAll(){ renderCounts(); // all table
+        const tbody = document.getElementById('allTableBody'); tbody.innerHTML=''; const books = loadBooks(); if(!books.length){ tbody.innerHTML='<tr><td colspan="5">Belum ada buku</td></tr>'; } books.forEach(b=>{ const tr=document.createElement('tr'); tr.dataset.id=b.id; tr.innerHTML = `<td>${escapeHtml(b.title)}</td><td>${escapeHtml(b.author||'-')}</td><td>${escapeHtml(b.borrower||'-')}</td><td class="${b.status==='tersedia'?'status-tersedia':'status-dipinjam'}">${b.status}</td><td class="actions"><button class="btn-toggle" data-action="toggle">${b.status==='tersedia'?'Pinjam':'Kembalikan'}</button><button class="btn-edit" data-action="edit">Edit</button><button class="btn-delete" data-action="delete">Hapus</button></td>`; tbody.appendChild(tr); });
+        // dashboard table
+        const tbody2 = document.getElementById('bookTableBody'); tbody2.innerHTML = tbody.innerHTML;
+        // lists
+        renderList('tersedia','availableList'); renderList('dipinjam','borrowedList'); }
+
+      // form handlers (single add form and dashboard form)
+      $('#bookForm').addEventListener('submit', e=>{ e.preventDefault(); const title=$('#title').value.trim(); if(!title) return alert('Judul wajib diisi'); const author=$('#author').value.trim(); const borrower=$('#borrower').value.trim(); const status=$('#status').value; const books=loadBooks(); const id=Date.now().toString(); books.unshift({id,title,author,borrower,status}); saveBooks(books); e.target.reset(); renderAll(); showView('koleksi'); });
+      $('#dashBookForm').addEventListener('submit', e=>{ e.preventDefault(); const title=$('#dashTitle').value.trim(); if(!title) return alert('Judul wajib diisi'); const author=$('#dashAuthor').value.trim(); const borrower=$('#dashBorrower').value.trim(); const status=$('#dashStatus').value; const books=loadBooks(); const id=Date.now().toString(); books.unshift({id,title,author,borrower,status}); saveBooks(books); e.target.reset(); renderAll(); });
+
+      // table actions
+      document.getElementById('allTableBody').addEventListener('click', e=>{ const btn=e.target.closest('button'); if(!btn) return; const action=btn.dataset.action; const tr=btn.closest('tr'); if(!tr) return; const id=tr.dataset.id; if(action==='edit') openEdit(id); if(action==='delete') removeBook(id); if(action==='toggle') toggleStatus(id); });
+      document.getElementById('bookTableBody').addEventListener('click', e=>{ const btn=e.target.closest('button'); if(!btn) return; const action=btn.dataset.action; const tr=btn.closest('tr'); if(!tr) return; const id=tr.dataset.id; if(action==='edit') openEdit(id); if(action==='delete') removeBook(id); if(action==='toggle') toggleStatus(id); });
+
+      function openEdit(id){ const books=loadBooks(); const b=books.find(x=>x.id===id); if(!b) return alert('Buku tidak ditemukan'); $('#editId').value=b.id; $('#editTitle').value=b.title; $('#editAuthor').value=b.author||''; $('#editBorrower').value=b.borrower||''; $('#editStatus').value=b.status||'tersedia'; const modal=$('#editModal'); modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); }
+      $('#cancelEdit').addEventListener('click', ()=>{ closeEdit(); }); function closeEdit(){ const modal=$('#editModal'); modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); }
+      $('#editForm').addEventListener('submit', e=>{ e.preventDefault(); const id=$('#editId').value; const title=$('#editTitle').value.trim(); if(!title) return alert('Judul wajib diisi'); const author=$('#editAuthor').value.trim(); const borrower=$('#editBorrower').value.trim(); const status=$('#editStatus').value; const books=loadBooks(); const idx=books.findIndex(x=>x.id===id); if(idx===-1) return alert('Buku tidak ditemukan'); books[idx]={...books[idx],title,author,borrower,status}; saveBooks(books); renderAll(); closeEdit(); });
+      function removeBook(id){ if(!confirm('Hapus data buku ini?')) return; const books=loadBooks().filter(x=>x.id!==id); saveBooks(books); renderAll(); }
+      function toggleStatus(id){ const books=loadBooks(); const idx=books.findIndex(x=>x.id===id); if(idx===-1) return; books[idx].status=books[idx].status==='tersedia'?'dipinjam':'tersedia'; if(books[idx].status==='dipinjam' && !books[idx].borrower) books[idx].borrower=prompt('Masukkan nama peminjam:')||''; if(books[idx].status==='tersedia') books[idx].borrower=''; saveBooks(books); renderAll(); }
+
+      // initial
+      const initialHash = location.hash.replace('#','')||'home'; showView(initialHash);
+
+      // expose for debugging
+      window.app = { loadBooks, saveBooks, renderAll, showView };
+    })();
+  </script>
+</body>
+</html>
